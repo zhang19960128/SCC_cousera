@@ -36,17 +36,22 @@ void DFS_v(std::vector<std::list<int> > &graph,std::list<int> &vlist,std::vector
       status[node]=1;
       for(std::list<int>::iterator a=graph[node].begin();a!=graph[node].end();a++){
          if(status[*a]==0){
-            DFS_v(graph,vlist,status,*a);
             vlist.push_back(*a);
+            status[*a]=1;
+            DFS_v(graph,vlist,status,*a);
          }
       }
 }
 void SCC(std::vector<std::list<int> >& graph,std::vector<std::list<int> >& gcc_graph,std::vector<int>& f,std::vector<int>& g){
       size_t size=g.size();
+      gcc_graph.clear();
       std::vector<int> status(size,0);
-      for(size_t i=size-1;i>=1;i++){
-         if(status[i]==0){
-
+      for(size_t i=size-1;i>=1;i--){
+         if(status[g[i]]==0){
+            gcc_graph.push_back(std::list<int>(0,0));
+            gcc_graph.back().push_back(i);
+            status[g[i]]=1;
+            DFS_v(graph,gcc_graph.back(),status,g[i]);
          }
       }
 }
@@ -80,5 +85,15 @@ int main(){
 	std::vector<int> f(i,0);
         std::vector<int> g(i,0);
 	DFS(graph_re,status,f,g);//compute the magic order.
-
+        std::vector<std::list<int> > scc_graph;
+        SCC(graph,scc_graph,f,g);
+        i=scc_graph.size();
+        std::list<int> sccsize;
+        for(size_t j=0;j<i;j++){
+            sccsize.push_back(scc_graph[j].size());
+        }
+        sccsize.sort([](int a,int b)->bool{return a>b;});
+        for(size_t i=0;i<5;i++){
+           std::cout<<*(std::next(sccsize.begin(),i))<<std::endl;
+        }
 }
